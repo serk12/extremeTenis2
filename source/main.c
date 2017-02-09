@@ -7,28 +7,32 @@
 #include "enemy.h"
 #include "shot.h"
 #include "credit.h"
+#include "count.h"
 
 static int seed, mode, actualMode; //0 animation //1 game
 
 void calcColisions() {
 	for (int i = 0; i < _qttyShots; ++i) {
-		int sizeX = 16;
-		int sizeY = 22;
+		int sizeX = 16, sizeY = 22, minSize = -6;
 		int distX = (_shots[i][0]- _offsetX) - SCREENPOSX;
 		int distY = (_shots[i][1]- _offsetY) - SCREENPOSY;
-		if (distX > 0 && distX < sizeX && distY > 0 && distY < sizeY) mode = 0; //coment for easy mode
+		if (distX > 0 && distX < sizeX && distY > minSize && distY < sizeY) mode = 0; //coment for easy mode
 		for (int j = 0; j < _qttyEnemy; ++j) {
 			if (_enemy[j][0] != -1 && _enemy[j][1] != -1) {
 				distX = _shots[i][0] - _enemy[j][0];
 				distY = _shots[i][1] - _enemy[j][1];
-				if (distX >= 0 && distX <= sizeX && distY >= 0 && distY <= sizeY) {
+				if (distX > 0 && distX < sizeX && distY > minSize && distY < sizeY) {
 				  _enemy[j][0] = _enemy[j][1] = -1;
 					--_qttyEnemyLive;
+					countDown();
 					obj_hide(&oam_mem[OFFSETMEME + j]);
-					if (_qttyEnemyLive == 0 && _qttyEnemy == 32) mode = 0;
+					if (_qttyEnemyLive == 0 && _qttyEnemy == MAXENEMYS) mode = 0;
 				}
 			}
 		}
+	}
+	if (_qttyEnemyLive == 0) {
+		countInit(_qttyEnemy + 1);
 	}
 }
 
